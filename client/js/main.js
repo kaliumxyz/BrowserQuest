@@ -407,6 +407,19 @@ define(['jquery', 'app'], function($, App) {
                             return false;
                         }
                     }
+                    if(key === 69 && window.cheat) { // e
+                        // game.togglePathingGrid();
+                        // teleport the player to center of the camera
+                        var loc = game.getPlayerCoord();
+                        var s = game.renderer.scale;
+                        var ts = game.renderer.tilesize;
+                        var offset = s * ts;
+                        var canvas = game.renderer.canvas;
+                        var w = canvas.width / 2 / offset;
+                        var h = canvas.height / 2 / offset;
+                        game.makeCharacterTeleportTo(game.player,game.camera.gridX + w, game.camera.gridY + h)
+                        return false;
+                    }
                     if(key === 32) { // Space
                         // game.togglePathingGrid();
                         /// the following code centers the camera
