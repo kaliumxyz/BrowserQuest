@@ -23,6 +23,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
         
             // Player
             this.player = new Warrior("player", "");
+            this.walklock = false;
     
             // Game state
             this.entities = {};
@@ -1515,6 +1516,14 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
         },
 
         /**
+         * Gets grid X and Y of player
+         * @returns {Object} An object containing x and y properties.
+         */
+        getPlayerCoord: function(x, y) {
+            return { x: this.player.gridX, y: this.player.gridY};
+        },
+
+        /**
          * Converts the current mouse position on the screen to world grid coordinates.
          * @returns {Object} An object containing x and y properties.
          */
@@ -1896,6 +1905,30 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     this.lastHovered.setHighlight(false);
                     this.lastHovered = null;
                 }
+            }
+        },
+
+        walk: function(x, y) {
+            entity = this.getEntityAt(x, y);
+
+            if(entity instanceof Mob) {
+                this.makePlayerAttack(entity);
+            }
+            else if(entity instanceof Item) {
+                this.makePlayerGoToItem(entity);
+            }
+            else if(entity instanceof Npc) {
+                if(this.player.isAdjacentNonDiagonal(entity) === false) {
+                    this.makePlayerTalkTo(entity);
+                } else {
+                    this.makeNpcTalk(entity);
+                }
+            }
+            else if(entity instanceof Chest) {
+                this.makePlayerOpenChest(entity);
+            }
+            else {
+                this.makePlayerGoTo(x, y);
             }
         },
     
