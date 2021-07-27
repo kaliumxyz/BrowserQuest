@@ -409,6 +409,16 @@ define(['jquery', 'app'], function($, App) {
                     }
                     if(key === 32) { // Space
                         // game.togglePathingGrid();
+                        /// the following code centers the camera
+                        var loc = game.getPlayerCoord();
+                        var s = game.renderer.scale;
+                        var ts = game.renderer.tilesize;
+                        var offset = s * ts;
+                        var canvas = game.renderer.canvas;
+                        var w = canvas.width / 2 / offset;
+                        var h = canvas.height / 2 / offset;
+                        game.camera.setGridPosition(loc.x - w, loc.y - h);
+                        game.renderer.renderStaticCanvases()
                         return false;
                     }
                     if(key === 73) { // I
@@ -427,6 +437,42 @@ define(['jquery', 'app'], function($, App) {
                         _.each(game.player.attackers, function(attacker) {
                             attacker.stop();
                         });
+                        return false;
+                    }
+                    if(key === 38) { // w, up
+                        var x = game.camera.gridX;
+                        var y = game.camera.gridY - 1;
+                        if(!game.map.isOutOfBounds(x, y)) {
+                            game.camera.setGridPosition(x, y);
+                            game.renderer.renderStaticCanvases()
+                        }
+                        return false;
+                    }
+                    if(key === 40) { // s, down
+                        var x = game.camera.gridX;
+                        var y = game.camera.gridY + 1;
+                        if(!game.map.isOutOfBounds(x, y)) {
+                            game.camera.setGridPosition(x, y);
+                            game.renderer.renderStaticCanvases()
+                        }
+                        return false;
+                    }
+                    if(key === 39) { // d, right
+                        var x = game.camera.gridX + 1;
+                        var y = game.camera.gridY
+                        if(!game.map.isOutOfBounds(x, y)) {
+                            game.camera.setGridPosition(x, y);
+                            game.renderer.renderStaticCanvases()
+                        }
+                        return false;
+                    }
+                    if(key === 37) { // a, left
+                        var x = game.camera.gridX - 1;
+                        var y = game.camera.gridY
+                        if(!game.map.isOutOfBounds(x, y)) {
+                            game.camera.setGridPosition(x, y);
+                            game.renderer.renderStaticCanvases()
+                        }
                         return false;
                     }
                     if(key === 87 || key === 38) { // w, up
