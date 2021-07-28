@@ -426,11 +426,12 @@ define(['jquery', 'app'], function($, App) {
                         var h = canvas.height / 2 / offset;
                         game.camera.setGridPosition(loc.x - w, loc.y - h);
                         game.renderer.renderStaticCanvases()
+                        game.bubbleManager.clean();
                         return false;
                     }
                     if(key === 73) { // I
-                        app.toggleInventory();
-                        console.log(game)
+                        // app.toggleInventory();
+                        // console.log(game)
                         return false;
                     }
                     // if(key === 70) { // F
