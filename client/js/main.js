@@ -407,7 +407,7 @@ define(['jquery', 'app'], function($, App) {
                             return false;
                         }
                     }
-                    if(key === 69 && window.cheat) { // e
+                    if(key === 69 && window.cheat) { // E
                         // game.togglePathingGrid();
                         // teleport the player to the cursor
                         var loc = game.getMouseGridPosition()
@@ -447,44 +447,23 @@ define(['jquery', 'app'], function($, App) {
                         });
                         return false;
                     }
-                    if(key === 38) { // w, up
-                        var x = game.camera.gridX;
-                        var y = game.camera.gridY - 1;
-                        if(!game.map.isOutOfBounds(x, y)) {
-                            game.camera.setGridPosition(x, y);
-                            game.renderer.renderStaticCanvases()
-                        }
+                    if(key === 38) { //  up
+                        game.moveCamera(0, -1)
                         return false;
                     }
-                    if(key === 40) { // s, down
-                        var x = game.camera.gridX;
-                        var y = game.camera.gridY + 1;
-                        if(!game.map.isOutOfBounds(x, y)) {
-                            game.camera.setGridPosition(x, y);
-                            game.renderer.renderStaticCanvases()
-                        }
+                    if(key === 40) { // down
+                        game.moveCamera(0, 1)
                         return false;
                     }
-                    if(key === 39) { // d, right
-                        var x = game.camera.gridX + 1;
-                        var y = game.camera.gridY
-                        if(!game.map.isOutOfBounds(x, y)) {
-                            game.camera.setGridPosition(x, y);
-                            game.renderer.renderStaticCanvases()
-                        }
+                    if(key === 39) { // right
+                        game.moveCamera(1, 0)
                         return false;
                     }
-                    if(key === 37) { // a, left
-                        var x = game.camera.gridX - 1;
-                        var y = game.camera.gridY
-                        if(!game.map.isOutOfBounds(x, y)) {
-                            game.camera.setGridPosition(x, y);
-                            game.renderer.renderStaticCanvases()
-                        }
+                    if(key === 37) { // left
+                        game.moveCamera(-1, 0)
                         return false;
                     }
                     if(key === 87 || key === 38) { // w, up
-                        // game.makeCharacterGoTo(game.player, 100, 100);
                         if(!game.walklock) {
                             var loc = game.getPlayerCoord();
                             game.walk(loc.x, --loc.y);

@@ -1873,6 +1873,22 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                 this.renderer.isDebugInfoVisible = true;
             }
         },
+
+        /**
+         * move camera relative to old position
+         */
+
+        moveCamera: function(rx,ry) {
+            if (!this.camera)
+                return
+            var x = this.camera.gridX + rx;
+            var y = this.camera.gridY + ry;
+            if(!this.map.isOutOfBounds(x, y)) {
+                this.camera.setGridPosition(x, y);
+                this.movecursor();
+                this.resetZone();
+            }
+        },
     
         /**
          * 
