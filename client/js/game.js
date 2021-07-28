@@ -2182,6 +2182,12 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                 } else if(z === Types.Orientations.UP || z === Types.Orientations.DOWN) {
                     y = (z === Types.Orientations.UP) ? c.y - yoffset : c.y + yoffset;
                 }
+                if(x < 0) { // TODO: actually test if this works correctly for mobile
+                    x = 0;
+                }
+                if(y < 0) {
+                    y = 0;
+                }
                 c.setPosition(x, y);
             
                 this.renderer.clearScreen(this.renderer.context);
