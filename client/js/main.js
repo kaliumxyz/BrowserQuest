@@ -412,26 +412,36 @@ define(['jquery', 'app'], function($, App) {
                         // teleport the player to the cursor
                         var loc = game.getMouseGridPosition()
                         game.makeCharacterTeleportTo(game.player,loc.x, loc.y)
+                        game.client.sendTeleport(loc.x, loc.y);
                         return false;
                     }
                     if(key === 32) { // Space
+                        if (!game.camera) { // if there is no camera we are in the start menu
+                            return false;
+                        }
+                        game.centerCamera();
                         // game.togglePathingGrid();
-                        /// the following code centers the camera
-                        var loc = game.getPlayerCoord();
-                        var s = game.renderer.scale;
-                        var ts = game.renderer.tilesize;
-                        var offset = s * ts;
-                        var canvas = game.renderer.canvas;
-                        var w = canvas.width / 2 / offset;
-                        var h = canvas.height / 2 / offset;
-                        game.camera.setGridPosition(loc.x - w, loc.y - h);
-                        game.renderer.renderStaticCanvases()
-                        game.bubbleManager.clean();
                         return false;
                     }
                     if(key === 73) { // I
                         // app.toggleInventory();
-                        // console.log(game)
+                        window.game = game;
+                        console.log(game)
+                        return false;
+                    }
+                    if(key === 67) { // C
+                        if (game.camMode === "zoning")
+                            game.centricCamera();
+                        else
+                            game.zoningCamera();
+                        return false;
+                    }
+                    if(key === 90) { // Z
+                        if (game.camMode === "zoning")
+                            game.camMode = "free"
+                        else
+                            game.camMode = "zoning"
+
                         return false;
                     }
                     // if(key === 70) { // F
@@ -448,55 +458,39 @@ define(['jquery', 'app'], function($, App) {
                         return false;
                     }
                     if(key === 38) { //  up
-                        game.moveCamera(0, -1)
+                        game.freeCamera(0, -1)
                         return false;
                     }
                     if(key === 40) { // down
-                        game.moveCamera(0, 1)
+                        game.freeCamera(0, 1)
                         return false;
                     }
                     if(key === 39) { // right
-                        game.moveCamera(1, 0)
+                        game.freeCamera(1, 0)
                         return false;
                     }
                     if(key === 37) { // left
-                        game.moveCamera(-1, 0)
+                        game.freeCamera(-1, 0)
                         return false;
                     }
                     if(key === 87 || key === 38) { // w, up
-                        if(!game.walklock) {
-                            var loc = game.getPlayerCoord();
-                            game.walk(loc.x, --loc.y);
-                            game.walklock = true;
-                            setTimeout(function(){game.walklock = false;},40)
-                        }
+                        var loc = game.getPlayerCoord();
+                        game.walk(loc.x, --loc.y);
                         return false;
                     }
                     if(key === 83 || key === 40) { // s, down
-                        if(!game.walklock) {
-                            var loc = game.getPlayerCoord();
-                            game.walk(loc.x, ++loc.y);
-                            game.walklock = true;
-                            setTimeout(function(){game.walklock = false;},40)
-                        }
+                        var loc = game.getPlayerCoord();
+                        game.walk(loc.x, ++loc.y);
                         return false;
                     }
                     if(key === 68 || key === 39) { // d, right
-                        if(!game.walklock) {
-                            var loc = game.getPlayerCoord();
-                            game.walk(++loc.x, loc.y);
-                            game.walklock = true;
-                            setTimeout(function(){game.walklock = false;},40)
-                        }
+                        var loc = game.getPlayerCoord();
+                        game.walk(++loc.x, loc.y);
                         return false;
                     }
                     if(key === 65 || key === 37) { // a, left
-                        if(!game.walklock) {
-                            var loc = game.getPlayerCoord();
-                            game.walk(--loc.x, loc.y);
-                            game.walklock = true;
-                            setTimeout(function(){game.walklock = false;},40)
-                        }
+                        var loc = game.getPlayerCoord();
+                        game.walk(--loc.x, loc.y);
                         return false;
                     }
                 } else {

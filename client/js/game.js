@@ -51,6 +51,8 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
             this.infoManager = new InfoManager(this);
         
             // zoning
+            this.camMode = "zoning";
+            this.skipZoning = 0;
             this.currentZoning = null;
         
             this.cursors = {};
@@ -852,11 +854,19 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     if(self.player.hasNextStep()) {
                         self.registerEntityDualPosition(self.player);
                     }
-                
-                    if(self.isZoningTile(self.player.gridX, self.player.gridY)) {
-                        self.enqueueZoningFrom(self.player.gridX, self.player.gridY);
+
+                    if(self.camMode === "centric") {
+                        self.centerCamera()
+                    } else
+                        if(self.camMode === "zoning" && self.isZoningTile(self.player.gridX, self.player.gridY) && self.skipZoning === 0) {
+                            self.enqueueZoningFrom(self.player.gridX, self.player.gridY);
+                        }
+
+                    if (self.skipZoning > 0) {
+                        self.skipZoning--;
                     }
-                
+
+
                     self.player.forEachAttacker(function(attacker) {
                         if(attacker.isAdjacent(attacker.target)) {
                             attacker.lookAtTarget();
@@ -883,6 +893,10 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     
                     if(self.player.gridX <= 27 && self.player.gridY <= 123 && self.player.gridY > 112) {
                         self.tryUnlockingAchievement("TOMB_RAIDER");
+                    }
+
+                    if (self.isBoundryZoningTile(self.player.gridX, self.player.gridY)) {
+                          self.skipZoning = 2;
                     }
                 
                     self.updatePlayerCheckpoint();
@@ -1874,7 +1888,53 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
             }
         },
 
-        /**
+         /**
+         * Centers the camera on the player
+         */
+        // TODO: this kinda works but makes Y stick when on X and vice versa. Make a real boundery system
+
+        centerCamera: function() {
+            var loc = this.getPlayerCoord();
+            this.centerCameraLoc(loc.x, loc.y);
+        },
+
+         /**
+         * Centers the camera to X Y
+         */
+        centerCameraLoc: function(x,y) {
+            if (!this.camera)
+                return
+            var s = this.renderer.scale;
+            var ts = this.renderer.tilesize;
+            var offset = s * ts;
+            var canvas = this.renderer.canvas;
+            var w = canvas.width / 2 / offset;
+            var h = canvas.height / 2 / offset;
+            this.camera.setGridPosition(x - w, y - h);
+            this.currentZoning = null;
+            this.resetZone(); // TODO: replace this but with a solution for moving chat bubbles
+        },
+
+         /**
+         * Centers the camera and sets camMode to centric
+         */
+
+        centricCamera: function() {
+            this.centerCamera()
+            this.camMode = "centric";
+        },
+
+         /**
+         * Centers the camera and sets camMode to zoning
+         */
+
+        zoningCamera: function() {
+            this.centerCamera()
+            this.camMode = "zoning";
+        },
+
+
+         /**
          * move camera relative to old position
          */
 
@@ -1885,11 +1945,21 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
             var y = this.camera.gridY + ry;
             if(!this.map.isOutOfBounds(x, y)) {
                 this.camera.setGridPosition(x, y);
-                this.movecursor();
-                this.resetZone();
+                this.updateCursor();
+                this.resetZone(); // TODO: replace this but with a solution for moving chat bubbles
             }
         },
-    
+
+         /**
+         * move camera relative to old position
+         */
+
+        freeCamera: function(rx,ry) {
+            if (this.camMode !== "zoning")
+            this.camMode = "free";
+            this.moveCamera(rx,ry)
+        },
+
         /**
          * 
          */
@@ -1925,26 +1995,35 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
         },
 
         walk: function(x, y) {
-            entity = this.getEntityAt(x, y);
+    	    if(this.started
+    	    && this.player
+            && !this.walklock
+    	    && !this.isZoning()
+    	    // && !this.isZoningTile(x, x)
+    	    && !this.player.isDead) {
+                entity = this.getEntityAt(x, y);
 
-            if(entity instanceof Mob) {
-                this.makePlayerAttack(entity);
-            }
-            else if(entity instanceof Item) {
-                this.makePlayerGoToItem(entity);
-            }
-            else if(entity instanceof Npc) {
-                if(this.player.isAdjacentNonDiagonal(entity) === false) {
-                    this.makePlayerTalkTo(entity);
-                } else {
-                    this.makeNpcTalk(entity);
+                if(entity instanceof Mob) {
+                    this.makePlayerAttack(entity);
                 }
-            }
-            else if(entity instanceof Chest) {
-                this.makePlayerOpenChest(entity);
-            }
-            else {
-                this.makePlayerGoTo(x, y);
+                else if(entity instanceof Item) {
+                    this.makePlayerGoToItem(entity);
+                }
+                else if(entity instanceof Npc) {
+                    if(this.player.isAdjacentNonDiagonal(entity) === false) {
+                        this.makePlayerTalkTo(entity);
+                    } else {
+                        this.makeNpcTalk(entity);
+                    }
+                }
+                else if(entity instanceof Chest) {
+                    this.makePlayerOpenChest(entity);
+                }
+                else {
+                    this.makePlayerGoTo(x, y);
+                }
+                self.walklock = true;
+                setTimeout(function(){self.walklock = false;},60)
             }
         },
     
@@ -1965,7 +2044,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
     	    if(this.started
     	    && this.player
     	    && !this.isZoning()
-    	    && !this.isZoningTile(this.player.nextGridX, this.player.nextGridY)
+    	    // && !this.isZoningTile(this.player.nextGridX, this.player.nextGridY)
     	    && !this.player.isDead
     	    && !this.hoveringCollidingTile
     	    && !this.hoveringPlateauTile) {
@@ -2122,6 +2201,21 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     }
                 }
             }
+        },
+
+        /**
+         *
+         */
+        isBoundryZoningTile: function(x, y) {
+            var c = this.camera;
+
+            x = x - c.gridX;
+            y = y - c.gridY;
+
+            if(x === -1 || y === -1 || x === c.gridW || y === c.gridH) {
+                return true;
+            }
+            return false;
         },
     
         /**
