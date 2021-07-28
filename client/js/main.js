@@ -417,6 +417,9 @@ define(['jquery', 'app'], function($, App) {
                     }
                     if(key === 32) { // Space
                         if (!game.camera) { // if there is no camera we are in the start menu
+                            var nameFromStorage = $('#playername').html()
+                            if (nameFromStorage) // if we are in the start menu and space is pressed while we already have an account, start the game
+                                app.tryStartingGame(nameFromStorage);
                             return false;
                         }
                         game.centerCamera();
