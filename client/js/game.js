@@ -1920,6 +1920,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
          */
 
         centricCamera: function() {
+            this.zoningQueue = [];
             this.centerCamera()
             this.camMode = "centric";
         },
@@ -1929,6 +1930,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
          */
 
         zoningCamera: function() {
+            this.zoningQueue = [];
             this.centerCamera()
             this.camMode = "zoning";
         },
@@ -1955,6 +1957,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
          */
 
         freeCamera: function(rx,ry) {
+            this.zoningQueue = [];
             if (this.camMode !== "zoning")
             this.camMode = "free";
             this.moveCamera(rx,ry)
