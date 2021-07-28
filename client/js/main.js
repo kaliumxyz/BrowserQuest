@@ -409,15 +409,9 @@ define(['jquery', 'app'], function($, App) {
                     }
                     if(key === 69 && window.cheat) { // e
                         // game.togglePathingGrid();
-                        // teleport the player to center of the camera
-                        var loc = game.getPlayerCoord();
-                        var s = game.renderer.scale;
-                        var ts = game.renderer.tilesize;
-                        var offset = s * ts;
-                        var canvas = game.renderer.canvas;
-                        var w = canvas.width / 2 / offset;
-                        var h = canvas.height / 2 / offset;
-                        game.makeCharacterTeleportTo(game.player,game.camera.gridX + w, game.camera.gridY + h)
+                        // teleport the player to the cursor
+                        var loc = game.getMouseGridPosition()
+                        game.makeCharacterTeleportTo(game.player,loc.x, loc.y)
                         return false;
                     }
                     if(key === 32) { // Space
