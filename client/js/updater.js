@@ -98,6 +98,9 @@ define(['character', 'timer'], function(Character, Timer) {
                     offset = (c.gridW - 2) * ts;
                     startValue = (orientation === Types.Orientations.LEFT) ? c.x - ts : c.x + ts;
                     endValue = (orientation === Types.Orientations.LEFT) ? c.x - offset : c.x + offset;
+                    if(endValue < 1){
+                        endValue = 0;
+                    }
                     updateFunc = function(x) {
                         c.setPosition(x, c.y);
                         g.initAnimatedTiles();
@@ -111,7 +114,10 @@ define(['character', 'timer'], function(Character, Timer) {
                     offset = (c.gridH - 2) * ts;
                     startValue = (orientation === Types.Orientations.UP) ? c.y - ts : c.y + ts;
                     endValue = (orientation === Types.Orientations.UP) ? c.y - offset : c.y + offset;
-                    updateFunc = function(y) { 
+                    if(endValue < 1){
+                        endValue = 0;
+                    }
+                    updateFunc = function(y) {
                         c.setPosition(c.x, y);
                         g.initAnimatedTiles();
                         g.renderer.renderStaticCanvases();
